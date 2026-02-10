@@ -6,6 +6,8 @@
     <title>Reels Pro - Shared Post</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Material Symbols for "Post Removed" -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     
     <style>
         /* CSS remains unchanged as requested except for requested UI adjustments */
@@ -18,9 +20,16 @@
         .reel-frame { height: 100%; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; position: relative; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         .media-wrapper { width: 100%; height: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
         .reel-media { width: 100%; height: 100%; object-fit: contain; z-index: 1; }
+        
+        /* Updated Error Container for Material Symbols */
         .error-container { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #777; text-align: center; width: 100%; height: 100%; z-index: 10; background: #000; position: absolute; top:0; left:0; }
-        .error-container i { font-size: 60px; margin-bottom: 15px; color: #444; }
+        .error-container .material-symbols-outlined { font-size: 60px; margin-bottom: 15px; color: #444; }
         .error-container span { font-weight: 600; font-size: 18px; }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+        }
+
         .text-post-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #000; padding: 40px 20px; }
         .text-post-box { background: #222; border: 1px solid #333; border-radius: 16px; padding: 30px 25px; color: white; font-size: 20px; font-weight: 600; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-height: 70vh; overflow-y: auto; display: block; z-index: 5; word-wrap: break-word; }
         .type-badge { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: none; }
@@ -36,7 +45,10 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .progress-bar-container { width: 100%; height: 3px; background: rgba(255, 255, 255, 0.2); margin-top: 12px; border-radius: 4px; overflow: hidden; pointer-events: none; }
         .progress-bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.15s linear; }
-        .actions-bar { position: absolute; right: 10px; bottom: 120px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 100; }
+        
+        /* Shifted actions-bar up slightly from 80px to 105px */
+        .actions-bar { position: absolute; right: 10px; bottom: 105px; display: flex; flex-direction: column; align-items: center; gap: 15px; z-index: 100; }
+        
         .action-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
         .icon-box { width: 45px; height: 45px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center; transition: transform 0.1s; }
         .action-btn:active .icon-box { transform: scale(0.9); }
@@ -115,6 +127,9 @@
         }
         .splash-content {
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .splash-icon {
             font-size: 60px;
@@ -129,6 +144,33 @@
             letter-spacing: 2px;
             text-transform: uppercase;
         }
+
+        /* NEW 3D START BUTTON STYLES */
+        .start-btn-3d {
+            margin-top: 40px;
+            padding: 15px 45px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 7px 0 #b01d3b, 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .start-btn-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 3px 0 #b01d3b, 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .start-btn-3d i { font-size: 20px; }
+
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.1); opacity: 0.7; }
@@ -291,15 +333,32 @@
             height: 40px;
             justify-content: center;
         }
+
+        /* NEW SOUND CARD INTEGRATED STYLES (RESIZED & WHITE SQUARE FRAME) */
+        .f { width: 38px; height: 38px; background: #FFFFFF; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); transition: 0.2s; }
+        .f:active { transform: scale(0.96); }
+        .f svg { width: 18px; height: 18px; fill: #000; margin-bottom: 2px; transition: 0.3s; }
+        .f .mute { display: none; }
+        .f.m .note { display: none; }
+        .f.m .mute { display: block; fill: var(--primary); }
+        .w { display: flex; align-items: center; gap: 2px; height: 10px; }
+        .l { width: 2px; height: 3px; background: #000; border-radius: 1px; animation: p 0.8s ease-in-out infinite; transition: 0.3s; }
+        @keyframes p { 0%, 100% { height: 3px; } 50% { height: 10px; } }
+        .f.m .l { animation-play-state: paused; background: #ccc; }
     </style>
 </head>
+      
 <body>
 
-    <!-- INITIAL SPLASH SCREEN -->
+    <!-- INITIAL SPLASH SCREEN WITH 3D START BUTTON -->
     <div id="initial-splash">
         <div class="splash-content">
             <i class="fas fa-clapperboard splash-icon"></i>
             <div class="splash-text">#𝚂𝚎𝚛𝚟𝚎𝚛𝙵𝚎𝚎𝚍:-𝙴𝙱𝙼𝚂-09</div>
+            
+            <button class="start-btn-3d" id="main-start-btn" onclick="startAppNow()">
+                <i class="fas fa-play"></i> 𝙾𝚙𝚎𝚗 𝚁𝚎𝚎𝚕𝚜
+            </button>
         </div>
     </div>
 
@@ -443,6 +502,7 @@
 
         window.cachedPosts = []; 
         window.currentUserData = null;
+        window.isGlobalMuted = false; // AUDIO UNMUTED BY DEFAULT AS REQUESTED
 
         const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'k' : n;
         
@@ -673,12 +733,29 @@
         const unlockAudio = () => {
             if(!audioUnlocked) {
                 audioUnlocked = true;
-                document.querySelectorAll('video').forEach(v => v.muted = false);
+                document.querySelectorAll('video').forEach(v => v.muted = window.isGlobalMuted);
                 document.removeEventListener('click', unlockAudio);
                 document.removeEventListener('touchstart', unlockAudio);
                 feed.removeEventListener('wheel', unlockAudio);
                 feed.removeEventListener('scroll', unlockAudio);
             }
+        };
+
+        // AUDIO TOGGLE LOGIC
+        window.toggleGlobalMute = function(e) {
+            if(e) e.stopPropagation();
+            if(!audioUnlocked) unlockAudio();
+            
+            window.isGlobalMuted = !window.isGlobalMuted;
+            
+            document.querySelectorAll('video').forEach(v => {
+                v.muted = window.isGlobalMuted;
+            });
+
+            document.querySelectorAll('.f').forEach(card => {
+                if (window.isGlobalMuted) card.classList.add('m');
+                else card.classList.remove('m');
+            });
         };
 
         document.addEventListener('click', unlockAudio);
@@ -690,12 +767,27 @@
             document.querySelectorAll('.inline-menu.active').forEach(el => el.classList.remove('active'));
         }, {passive: true});
 
+        // UPDATED ERROR LOGIC FOR "POST REMOVED"
         window.handleMediaError = function(el) {
             const wrapper = el.parentElement;
             if (wrapper) {
-                wrapper.innerHTML = `<div class="error-container"><i class="fas fa-exclamation-triangle"></i><span>Post Unavailable</span></div>`;
+                wrapper.innerHTML = `
+                <div class="error-container">
+                    <span class="material-symbols-outlined">block</span>
+                    <span>Post Removed</span>
+                </div>`;
             }
         };
+
+        // NEW START APP FUNCTION
+        window.startAppNow = function() {
+            unlockAudio();
+            const splash = document.getElementById('initial-splash');
+            if (splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.visibility = 'hidden'; }, 600);
+            }
+        }
 
         async function init() {
             const savedUser = localStorage.getItem("username");
@@ -722,14 +814,6 @@
                     } else {
                         renderFeedList([...posts].sort(() => Math.random() - 0.5));
                     }
-                    
-                    setTimeout(() => {
-                        const splash = document.getElementById('initial-splash');
-                        if (splash) {
-                            splash.style.opacity = '0';
-                            setTimeout(() => { splash.style.visibility = 'hidden'; }, 600);
-                        }
-                    }, 150); 
                 }
             } catch (e) { 
                 console.error(e); 
@@ -777,7 +861,11 @@
             const isYoutube = src && (src.includes('youtube.com') || src.includes('youtu.be'));
 
             if (isYoutube) {
-                mediaHtml = `<div class="error-container"><i class="fas fa-exclamation-triangle"></i><span>Post Unavailable</span></div>`;
+                mediaHtml = `
+                <div class="error-container">
+                    <span class="material-symbols-outlined">block</span>
+                    <span>Post Removed</span>
+                </div>`;
                 typeIconClass = 'fa-video-slash';
             } else if(isVid) {
                 mediaHtml = `<video class="reel-media" loop playsinline onerror="handleMediaError(this)"><source src="${src}" type="video/mp4"></video>`;
@@ -791,6 +879,9 @@
             }
 
             if(post.type === 'audio') typeIconClass = 'fa-music';
+
+            // Visualizer bars template
+            const bars = Array(6).fill(0).map((_, i) => `<div class="l" style="animation-delay: -${i * 0.12}s"></div>`).join('');
 
             reel.innerHTML = `
                 <div class="type-badge" style="border: 3px solid ${badgeColor};">
@@ -846,6 +937,15 @@
                         <div class="icon-box"><i class="fas fa-plus-circle"></i></div>
                         <span class="action-text">Add</span>
                     </div>
+                    
+                    <div class="f ${window.isGlobalMuted ? 'm' : ''}" onclick="toggleGlobalMute(event)">
+                        <svg viewBox="0 0 24 24">
+                            <path class="note" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            <path class="mute" d="M4.27 3L3 4.27l9 9v.28c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4v-1.17l4.73 4.73L21 19.73 4.27 3zM14 7h4V3h-6v5.17l2 2V7z"/>
+                        </svg>
+                        <div class="w">${bars}</div>
+                    </div>
+
                 </div>
                 <div class="info-area">
                     <div class="user-badge" onclick="openUserProfile('${authorId}')">
@@ -913,7 +1013,7 @@
         };
 
         window.sharePost = async function(id) {
-            const shareUrl = window.location.origin + window.location.pathname + "?id=" + id; 
+            const shareUrl = "https://uranetworks7-commits.github.io/PostX-Reels-/?id=" + id; 
             if (navigator.share) {
                 try { 
                     await navigator.share({ 
@@ -938,7 +1038,7 @@
                     const vid = e.target.querySelector('video');
                     if(!vid) return;
                     if(e.isIntersecting) {
-                        vid.muted = !audioUnlocked;
+                        vid.muted = window.isGlobalMuted; // RESPECT GLOBAL MUTE STATE
                         vid.play().catch(() => { vid.muted = true; vid.play(); });
                         const wrapper = e.target.querySelector('.media-wrapper');
                         if(wrapper) wrapper.classList.remove('paused');
@@ -1253,7 +1353,7 @@
             const video = singleContainer.querySelector('video');
             if(video) {
                 audioUnlocked = true; 
-                video.muted = false;
+                video.muted = window.isGlobalMuted;
                 video.currentTime = 0;
                 video.play().catch(e => console.log('Autoplay blocked:', e));
                 const wrapper = singleContainer.querySelector('.media-wrapper');
