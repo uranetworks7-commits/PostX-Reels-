@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +93,10 @@
 
         /* SINGLE POST VIEW */
         #single-post-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 600; display: none; }
-        .single-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 24px; z-index: 601; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .single-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 24px; z-index: 2000; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+
+        /* HIDE USER ICON IN SINGLE VIEW AS REQUESTED */
+        #single-reel-container .user-badge { display: none !important; }
 
         /* SPLASH SCREEN STYLES */
         #initial-splash {
@@ -278,7 +279,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 8px 16px;
+            padding: 8px 8px;
             border-radius: 20px;
             font-weight: 700;
             font-size: 13px;
@@ -286,6 +287,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            width: 40px;
+            height: 40px;
+            justify-content: center;
         }
     </style>
 </head>
@@ -305,7 +309,7 @@
     <!-- SHARE VIEW CONTROLS (Floating Home Button) -->
     <div id="share-view-controls">
         <div class="home-btn" onclick="window.location.href = window.location.pathname">
-            <i class="fas fa-home"></i> View All Reels
+            <i class="fas fa-home"></i>
         </div>
     </div>
 
@@ -340,6 +344,17 @@
         <div class="ap-action" onclick="openMyProfile()">
             <i class="fas fa-user"></i> My Profile
         </div>
+        
+        <!-- NEW FEED SETTINGS SECTION -->
+        <div class="ap-action" onclick="document.getElementById('feed-sub-options').style.display = document.getElementById('feed-sub-options').style.display === 'none' ? 'block' : 'none'">
+            <i class="fas fa-cog"></i> Feed Settings
+        </div>
+        <div id="feed-sub-options" style="display:none; background: #f9f9f9; border-bottom: 1px solid #eee;">
+            <div class="ap-action" onclick="changeFeed('TRENDING')" style="padding-left: 45px; font-size: 13px;"> 🔴TRENDING</div>
+            <div class="ap-action" onclick="changeFeed('NEW')" style="padding-left: 45px; font-size: 13px;">🔵 NEW</div>
+            <div class="ap-action" onclick="changeFeed('NORMAL')" style="padding-left: 45px; font-size: 13px;">⚫ NORMAL</div>
+        </div>
+
         <div class="ap-action" onclick="handleLogout()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </div>
@@ -544,7 +559,7 @@
             }
             showModal({
                 title: "Login",
-                body: "Please enter your Main Account Username:",
+                body: " Enter Your Main  Username:",
                 input: true,
                 confirmText: "Login",
                 onConfirm: async (val) => {
@@ -576,6 +591,38 @@
                 panel.classList.remove('active');
             }
         });
+
+        // FEED FILTER LOGIC
+        window.changeFeed = function(type) {
+            if (!window.cachedPosts || window.cachedPosts.length === 0) return;
+            
+            let posts = [...window.cachedPosts];
+            
+            if (type === 'TRENDING') {
+                posts.sort((a, b) => (b.views || 0) - (a.views || 0));
+            } else if (type === 'NEW') {
+                posts.sort((a, b) => (b.createdAt || b.timestamp || 0) - (a.createdAt || a.timestamp || 0));
+            } else {
+                // NORMAL - Shuffle
+                posts.sort(() => Math.random() - 0.5);
+            }
+
+            // Close panel
+            document.getElementById('account-panel').classList.remove('active');
+            document.getElementById('feed-sub-options').style.display = 'none';
+
+            // Re-render feed
+            renderFeedList(posts);
+            feed.scrollTop = 0;
+        };
+
+        function renderFeedList(posts) {
+            const tempFragment = document.createDocumentFragment();
+            posts.forEach(p => createReel(p, tempFragment));
+            feed.innerHTML = ''; 
+            feed.appendChild(tempFragment);
+            initObserver(feed);
+        }
 
         // FOLLOW LOGIC
         window.handleFollow = async function(e, targetUserId, btn) {
@@ -658,7 +705,6 @@
                 updateLoginUI(null);
             }
 
-            // DETECT SHARE URL (/share(post id) simulated via query param or hash)
             const urlParams = new URLSearchParams(window.location.search);
             const shareId = urlParams.get('id') || window.location.hash.substring(1);
 
@@ -669,21 +715,13 @@
                     let posts = Object.keys(data).map(k => ({ id: k, ...data[k] }));
                     window.cachedPosts = posts; 
                     
-                    const tempFragment = document.createDocumentFragment();
-
                     if(shareId && data[shareId]) {
-                        // SHARE MODE: Show only the shared post
                         document.getElementById('share-view-controls').style.display = 'block';
-                        createReel({ id: shareId, ...data[shareId] }, tempFragment);
+                        let finalPosts = [{ id: shareId, ...data[shareId] }, ...posts.filter(p => p.id !== shareId).sort(() => Math.random() - 0.5)];
+                        renderFeedList(finalPosts);
                     } else {
-                        // NORMAL MODE: Show random feed
-                        posts.sort(() => Math.random() - 0.5).forEach(p => createReel(p, tempFragment));
+                        renderFeedList([...posts].sort(() => Math.random() - 0.5));
                     }
-                    
-                    feed.innerHTML = ''; 
-                    feed.appendChild(tempFragment);
-                    
-                    initObserver(feed);
                     
                     setTimeout(() => {
                         const splash = document.getElementById('initial-splash');
@@ -779,7 +817,7 @@
                         <span class="action-text">Share</span>
                     </div>
                     <div class="action-btn" style="position:relative">
-                        <div class="icon-box" onclick="toggleInlineMenu('${post.id}')"><i class="fas fa-ellipsis-h"></i></div>
+                        <div class="icon-box" onclick="toggleInlineMenu(this, '${post.id}')"><i class="fas fa-ellipsis-h"></i></div>
                         <span class="action-text">More</span>
                         <div class="inline-menu" id="menu-${post.id}">
                             <div class="menu-header">Post Information</div>
@@ -875,7 +913,6 @@
         };
 
         window.sharePost = async function(id) {
-            // New URL structure for sharing
             const shareUrl = window.location.origin + window.location.pathname + "?id=" + id; 
             if (navigator.share) {
                 try { 
@@ -889,10 +926,10 @@
             }
         };
 
-        window.toggleInlineMenu = function(id) {
-            const menu = document.getElementById(`menu-${id}`);
+        window.toggleInlineMenu = function(btn, id) {
+            const menu = btn.parentElement.querySelector('.inline-menu');
             document.querySelectorAll('.inline-menu').forEach(el => { if(el !== menu) el.classList.remove('active'); });
-            menu.classList.toggle('active');
+            if(menu) menu.classList.toggle('active');
         };
 
         function initObserver(targetContainer) {
@@ -959,6 +996,9 @@
                 const vids = singleContainer.querySelectorAll('video');
                 vids.forEach(v => { v.pause(); v.src = ""; });
             }
+            if(document.getElementById('profile-page').style.display !== 'block') {
+                document.getElementById('login-state-box').style.display = 'flex';
+            }
         }
 
         function hideProfileUI() {
@@ -966,6 +1006,7 @@
             const appFrame = document.getElementById('app-frame');
             if(profilePage) profilePage.style.display = 'none';
             if(appFrame) appFrame.style.display = 'block';
+            document.getElementById('login-state-box').style.display = 'flex';
         }
 
         window.addEventListener('popstate', (event) => {
@@ -1058,7 +1099,7 @@
         window.deleteComment = async function(commentId) {
             showModal({
                 title: "Delete Comment",
-                body: "Are you sure you want to delete this comment?",
+                body: "",
                 confirmText: "Delete",
                 onConfirm: async () => {
                     try {
@@ -1117,6 +1158,9 @@
             history.pushState({modal: 'profile'}, '', '');
             appFrame.style.display = 'none';
             profilePage.style.display = 'block';
+            document.getElementById('login-state-box').style.display = 'none'; 
+            document.getElementById('account-panel').classList.remove('active');
+
             document.getElementById('p-page-name').innerText = 'Loading...';
             document.getElementById('p-page-fullname').innerText = '';
             document.getElementById('p-page-badge').innerHTML = '';
@@ -1202,6 +1246,7 @@
 
         window.openSinglePost = function(post) {
             history.pushState({modal: 'single'}, '', '');
+            document.getElementById('login-state-box').style.display = 'none'; 
             singleContainer.innerHTML = '';
             createReel(post, singleContainer);
             singleView.style.display = 'block';
